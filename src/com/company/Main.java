@@ -1,14 +1,20 @@
 package com.company;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
+/*
+* 1. 生成两个大素数p和q
+* 2. 计算n = pq
+* 3. 计算phi(n) = (p-1)(q-1)
+* 4，选择一个整数e，使得1 < e <= phi(n)，且e与phi(n)互质
+* 5. 计算私钥d，使得ed = 1 mod phi，即d是e的模phi的乘法逆元
+* 6. 加密：c = m^e mod N
+* 7. 解密：m = c^d mod N
+* */
+
 public class Main {
-
-
     public static class RSA {
         private final static BigInteger ONE = new BigInteger("1");
         private final static SecureRandom random = new SecureRandom();
-
         private BigInteger privateKey;
         private BigInteger publicKey;
         private BigInteger modulus;
