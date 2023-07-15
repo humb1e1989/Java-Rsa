@@ -2,13 +2,14 @@ package com.company;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 /*
-* 1. 生成两个大素数p和q
-* 2. 计算n = pq
-* 3. 计算phi(n) = (p-1)(q-1)
-* 4，选择一个整数e，使得1 < e <= phi(n)，且e与phi(n)互质
-* 5. 计算私钥d，使得ed = 1 mod phi，即d是e的模phi的乘法逆元
-* 6. 加密：c = m^e mod N
-* 7. 解密：m = c^d mod N
+* 1. 首先明确所有的参数，n，e，d，p，q，phi(n)，c，m，其中质数p, q题目一般会给出，然后通过 n = pq 计算出n, 再通过 phi(n) = (p-1)(q-1) 计算出phi(n)
+* 2. 生成两个大素数p和q（需要尽量不相近）
+* 3. 计算n = pq
+* 4. 计算phi(n) = (p-1)(q-1)
+* 5，选择一个整数e，使得1 < e <= phi(n)，且e与phi(n)互质
+* 6. 计算私钥d，使得ed = 1 mod phi，即d是e的模phi的乘法逆元
+* 7. 加密：c = m^e mod N
+* 8. 解密：m = c^d mod N
 * */
 
 public class Main {
@@ -16,84 +17,127 @@ public class Main {
         private final static BigInteger ONE = new BigInteger("1");
         private final static SecureRandom random = new SecureRandom();
         private BigInteger privateKey;
-        private BigInteger publicKey;
+        private BigInteger publicKey = BigInteger.valueOf(0);
         private BigInteger modulus;
 
-        // Generate an N-bit (roughly) prime
-        private static BigInteger generatePrime(int N) {
-            return BigInteger.probablePrime(N, random);
-        }
+        private int Digitals = 270; // set the digitals of the prime number p and q in RSA
 
         // Generate keys
-        public RSA(int N) {
-            BigInteger p = generatePrime(N); // prime p
-            BigInteger q = generatePrime(N); // Prime q
-            System.out.println(p);
-            System.out.println(q);
-            BigInteger phi_N = (p.subtract(ONE)).multiply(q.subtract(ONE)); // phi = (p-1)(q-1)
+        public RSA() {
+            //Generate two distinct primes p and q.
+            BigInteger p = generatePrime(Digitals); // prime p
+            BigInteger q = generatePrime(Digitals); // Prime q
+            System.out.println("p = " + p);
+            System.out.println("q = " + q);
+
+            // Generate modulus n
             modulus = p.multiply(q); // N = pq
-            publicKey = new BigInteger("65537"); // common value in practice = 2^16+1, THIS IS e
-            publicKey = BigInteger.valueOf(3);
-            privateKey = publicKey.modInverse(phi_N); // d = e^-1 mod phi
+            System.out.println("Modulus for this RSA is: " + modulus);
+
+            // Generate phi(n)
+            BigInteger phi_n = (p.subtract(ONE)).multiply(q.subtract(ONE)); // phi(n) = (p-1)(q-1)
+            System.out.println("phi_n for this RSA is: "+ phi_n);
+
+            //Generate public key e
+            while((!publicKey.gcd(phi_n).equals(BigInteger.ONE))
+                    || !(0 >= publicKey.compareTo(phi_n)) // less than or equal to phi_n
+                    || !(0 <= publicKey.compareTo(BigInteger.ONE))) // greater than or equal to 1
+            {
+                publicKey = new BigInteger(phi_n.bitLength(),random).mod(phi_n); // e
+
+            }
+            System.out.println("Public key e = " + publicKey);
+
+            //Generate private key d
+            privateKey = publicKey.modInverse(phi_n); // d = e^-1 mod phi
+            System.out.println("Private key d = " + privateKey);
+        }
+
+        // Generate an N-bit (roughly) prime
+        private static BigInteger generatePrime(int digitals) {
+            return BigInteger.probablePrime(digitals, random);
         }
 
         // Encrypt the given plaintext message
-        public BigInteger encrypt(BigInteger message) {
-            return message.modPow(publicKey, modulus);
+        public BigInteger encrypt(BigInteger plaintext) {
+            return plaintext.modPow(publicKey, modulus);
         }
 
         // Decrypt the given ciphertext message
-        public BigInteger decrypt(BigInteger encrypted) {
-            return encrypted.modPow(privateKey, modulus);
+        public BigInteger decrypt(BigInteger ciphertext) {
+            return ciphertext.modPow(privateKey, modulus);
         }
+
+        public BigInteger signature(BigInteger planText) {
+            return planText.modPow(privateKey, modulus);
+        }
+
+        public BigInteger verify(BigInteger cipherText) {
+            return cipherText.modPow(publicKey, modulus);
+        }
+
 
         // Return the private key as a string
-        public String getPrivateKey() {
-            return privateKey.toString();
-        }
+//        public String getPrivateKey() {
+//            return privateKey.toString();
+//        }
 
         // Return the public key as a string
-        public String getPublicKey() {
-            return publicKey.toString();
-        }
+//        public String getPublicKey() {
+//            return publicKey.toString();
+//        }
 
         // Return the modulus as a string
-        public String getModulus() {
-            return modulus.toString();
-        }
-
+//        public String getModulus() {
+//            return modulus.toString();
+//        }
         // 知道公钥e和模数n，求私钥d
-        public BigInteger getPrivateKey(BigInteger e, BigInteger n) {
-            return e.modInverse(n);
-        }
+//        public BigInteger getPrivateKey(BigInteger e, BigInteger n) {
+//            return e.modInverse(n);
+//        }
         // 知道私钥d和模数n，求公钥e
-        public BigInteger getPublicKey(BigInteger d, BigInteger n) {
-            return d.modInverse(n);
-        }
+//        public BigInteger getPublicKey(BigInteger d, BigInteger n) {
+//            return d.modInverse(n);
+//        }
         //知道公钥e和私钥d，求模数n
-        public BigInteger getModulus(BigInteger e, BigInteger d) {
-            return e.multiply(d);
-        }
+//        public BigInteger getModulus(BigInteger e, BigInteger d) {
+//            return e.multiply(d);
+//        }
         // 知道加密后的密文c和公钥e，求明文m
-        public BigInteger getPlaintext(BigInteger c, BigInteger e) {
-            return c.modPow(e, modulus);
-        }
+//        public BigInteger getPlaintext(BigInteger c, BigInteger e) {
+//            return c.modPow(e, modulus);
+//        }
         // 知道明文m和私钥d，求密文c
-        public BigInteger getCiphertext(BigInteger m, BigInteger d) {
-            return m.modPow(d, modulus);
-        }
+//        public BigInteger getCiphertext(BigInteger m, BigInteger d) {
+//            return m.modPow(d, modulus);
+//        }
+
     }
     public static void main(String[] args) {
-        RSA rsa = new RSA(187);
+        RSA rsa = new RSA();
 
-        BigInteger message = new BigInteger("9");
-        BigInteger ciphertext = rsa.encrypt(message);
-        BigInteger plaintext = rsa.decrypt(ciphertext);
-        BigInteger Result = rsa.getPrivateKey(BigInteger.valueOf(3),BigInteger.valueOf(187)); // 这里填方法的返回值
+        BigInteger M = new BigInteger("9"); // Initialize the message M
+        System.out.println("The PlainText is: " + M);
+
+        BigInteger C = rsa.encrypt(M); // caculate the ciphertext C (Encrypted message)
+        System.out.println("The CipherText is: " + C);
+
+
+        BigInteger plaintext = rsa.decrypt(C); // Decrypted the ciphertext C
+        System.out.println(plaintext);
+        BigInteger ciphertext = rsa.encrypt(plaintext); // Encrypted the plaintext M
+        System.out.println(ciphertext);
+
+
+        if (M.equals(plaintext) && C.equals(ciphertext)){
+            System.out.println("The result is correct!");
+        }else{
+            System.out.println("The result is wrong! Please double-check your code");
+        }
 
 //        System.out.println("Original message: " + message);
 //        System.out.println("Encrypted message: " + ciphertext);
 //        System.out.println("Decrypted message: " + plaintext);
-        System.out.println("Result: " + Result);
+//        System.out.println("Result: " + Result);
     }
 }
