@@ -101,11 +101,6 @@ public class Main {
         public BigInteger getPublicKey(BigInteger d, BigInteger n) {
             return d.modInverse(n);
         }
-
-        // 知道加密后的密文c和公钥e，求明文m
-        public BigInteger getPlaintext(BigInteger c, BigInteger e) {
-            return c.modPow(e, modulus);
-        }
     }
     public static void main(String[] args) {
         RSA rsa = new RSA();
