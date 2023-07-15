@@ -76,42 +76,36 @@ public class Main {
             return cipherText.modPow(publicKey, modulus);
         }
 
-
         // Return the private key as a string
-//        public String getPrivateKey() {
-//            return privateKey.toString();
-//        }
+        public BigInteger getPrivateKey() {
+            return privateKey;
+        }
 
         // Return the public key as a string
-//        public String getPublicKey() {
-//            return publicKey.toString();
-//        }
+        public BigInteger getPublicKey() {
+            return publicKey;
+        }
 
         // Return the modulus as a string
-//        public String getModulus() {
-//            return modulus.toString();
-//        }
-        // 知道公钥e和模数n，求私钥d
-//        public BigInteger getPrivateKey(BigInteger e, BigInteger n) {
-//            return e.modInverse(n);
-//        }
-        // 知道私钥d和模数n，求公钥e
-//        public BigInteger getPublicKey(BigInteger d, BigInteger n) {
-//            return d.modInverse(n);
-//        }
-        //知道公钥e和私钥d，求模数n
-//        public BigInteger getModulus(BigInteger e, BigInteger d) {
-//            return e.multiply(d);
-//        }
-        // 知道加密后的密文c和公钥e，求明文m
-//        public BigInteger getPlaintext(BigInteger c, BigInteger e) {
-//            return c.modPow(e, modulus);
-//        }
-        // 知道明文m和私钥d，求密文c
-//        public BigInteger getCiphertext(BigInteger m, BigInteger d) {
-//            return m.modPow(d, modulus);
-//        }
+        public BigInteger getModulus() {
+            return modulus;
+        }
 
+
+        // 知道公钥e和模数n，求私钥d
+        public BigInteger getPrivateKey(BigInteger e, BigInteger n) {
+            return e.modInverse(n);
+        }
+
+        // 知道私钥d和模数n，求公钥e
+        public BigInteger getPublicKey(BigInteger d, BigInteger n) {
+            return d.modInverse(n);
+        }
+
+        // 知道加密后的密文c和公钥e，求明文m
+        public BigInteger getPlaintext(BigInteger c, BigInteger e) {
+            return c.modPow(e, modulus);
+        }
     }
     public static void main(String[] args) {
         RSA rsa = new RSA();
